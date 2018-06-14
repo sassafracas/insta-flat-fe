@@ -20,12 +20,11 @@ document.addEventListener("DOMContentLoaded", function (){
       headers: {
         "Content-Type" : "application/json"
       },
-      body: {
-        url : JSON.stringify({url:inputFormInput.value})
-      }
+      body: JSON.stringify({url:inputFormInput.value})
+
     }
     console.log(inputFormInput.value)
-    fetch(imagesURL, config).then(response => response.json()).then(response => console.log(response))
+    fetch(imagesURL, config).then(response => response.json()).then(generateImageHTML)
   })
 
   function getAllImages () {
@@ -46,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function (){
 
     const like = `
     <img data-action="like-image" data-image-id=${imageObj.id} class="like-button" id="like-button" src="./images/like.png"><br>
-    //        <span id="likes-count-for-image-1">${imageObj.likes_count}</span>
+    //        <span id="likes-count-for-image-${imageObj.id}">${imageObj.likes_count}</span>
     `
 
     div.setAttribute("class", "image-container")
@@ -57,6 +56,7 @@ document.addEventListener("DOMContentLoaded", function (){
     p.innerHTML = like
     div.addEventListener("click", function (event){
       if (event.target.id === "like-button"){
+
         const config = {
           method: "POST",
           headers: {
@@ -64,12 +64,18 @@ document.addEventListener("DOMContentLoaded", function (){
           },
           body: JSON.stringify({image_id:event.target.dataset.imageId})
         }
-        debugger
-        fetch(likesURL, config).then(response => response.json()).then(response => console.log(response))
+
+        fetch(likesURL, config).then(response => response.json()).then(a => addLike(event, a))
       }
     })
   }
 
+  function addLike (event, a) {
+    const span = document.getElementById(`likes-count-for-image-${event.target.dataset.imageId}`)
+    let spanStuff = span.innerText
+    spanStuff = parseInt(spanStuff) + 1
+    span.innerText = spanStuff
+  }
 
   function startApp () {
     getAllImages()
